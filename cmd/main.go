@@ -2,9 +2,10 @@ package main
 
 import (
 	"echo_rest_timer/internal/config"
-	"net/http"
+	"echo_rest_timer/internal/handlers"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -16,13 +17,12 @@ func main() {
 		e.Logger.Fatal("Config load error", err)
 	}
 
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	e.Logger.SetLevel(cfg.Environment.LogLevel())
 
 	port := ":" + cfg.Port
-	e.GET("/", func(c echo.Context) error {
-		e.Logger.Debug("Use e.GET /,func(c echo.Context)")
-		return c.String(http.StatusOK, "Hello, World!")
-	})
+	e.GET("/status", handlers.NewHandlerStatus(cfg.Date))
 	e.Logger.Debug(cfg.Date.Day())
 	e.Logger.Fatal(e.Start(port))
 

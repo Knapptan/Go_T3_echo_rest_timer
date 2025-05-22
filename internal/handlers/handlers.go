@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -9,11 +10,12 @@ import (
 
 func NewHandlerStatus(date time.Time) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		now := time.Now()
-		timeLess := date.Sub(now)
+		timeLess := time.Until(date)
 		if timeLess < 0 {
-			timeLess = 0
+			reqStr := fmt.Sprintf("Количество дней осталось до %v: %d", date, 0)
+			return c.String(http.StatusOK, reqStr)
 		}
-		return c.String(http.StatusOK, timeLess.String())
+		reqStr := fmt.Sprintf("Количество дней осталось до %v: %d", date, int(timeLess.Hours())/24)
+		return c.String(http.StatusOK, reqStr)
 	}
 }
